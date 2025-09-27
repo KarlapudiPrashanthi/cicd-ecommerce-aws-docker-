@@ -1,40 +1,27 @@
-name: Deploy Ecommerce Fullstack App on EC2
+name: Deploy Ecommerce Fullstack App
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Copy repo to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "./*"
-          target: /home/ubuntu/ecommercefullstack
+      - name: Set up Docker
+        uses: docker/setup-docker@v2
 
-      - name: Deploy on EC2 with Docker Compose
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/ecommercefullstack
-            sudo apt-get update -y
-            sudo apt-get install -y docker.io docker-compose git
-            sudo systemctl enable docker
-            sudo systemctl start docker
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
 
-            sudo docker compose down
-            sudo docker compose up -d --build
+      - name: Build and run Docker containers
+        run: |
+          docker-compose up -d --build

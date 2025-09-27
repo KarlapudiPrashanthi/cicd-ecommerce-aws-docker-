@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   db:
@@ -16,7 +17,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.backend
     container_name: ecommerce-backend
     restart: always
@@ -34,7 +35,7 @@ services:
 
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.frontend
     container_name: ecommerce-frontend
     restart: always
